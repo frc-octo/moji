@@ -51,8 +51,10 @@ fields.getSprint = function(issue, field_name) {
   var value = issue.fields[field_name];
   
   if (value != null && value.length > 0) {
-    var sprintArray = value[value.length-1].split("name=")[1].split(",")[0].split(/[, ]+/);
-    sprint = sprintArray[1];
+    var re = /name=[^\d]*([\d]+)[^\d].*,/;
+    var sprintArray = re.exec(value[value.length-1]);
+
+    sprint = sprintArray.pop();
   }
   
   return sprint;
