@@ -52,7 +52,7 @@ fields.getSprint = function(issue, field_name) {
   
   if (value != null && value.length > 0) {
     var sprintArray = value[value.length-1].split("name=")[1].split(",")[0].split(/[, ]+/);
-    sprint = sprintArray[sprintArray.length -1];
+    sprint = sprintArray[1];
   }
   
   return sprint;

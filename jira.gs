@@ -105,7 +105,7 @@ jira.getMinFields = function() {
     fields.push({
       'label': label,
       'name': jira.fields[label].name,
-      'tech':null
+      'tech': null
     });
   
   return fields;
@@ -114,15 +114,15 @@ jira.getMinFields = function() {
 jira.readExportFields = function() {
   var properties = PropertiesService.getScriptProperties();
   
-  var fields = JSON.parse(properties.getProperty('fields'));
-  fields = fields || jira.getMinFields();
+  var fields_ = JSON.parse(properties.getProperty('fields'));
+  fields_ = fields_ || jira.getMinFields();
   
-  fields.forEach(function(item) {
+  fields_.forEach(function(item) {
     var field = jira.fields[item.label];
     item.fn = (field) ? field.fn : fields.getObject;
   });
   
-  return fields;
+  return fields_;
 };
 
 jira.saveExportFields = function(fields) {
@@ -169,7 +169,7 @@ jira.getStatuses = function() {
 jira.getBacklog = function() {
   var project = jira.readProject();
   
-  return { issues: jira.getData('project = ' + project.name) };
+  return { issues: jira.getData('project=' + project.id) };
 };
 
 /***************************************/
@@ -184,11 +184,12 @@ jira.getData = function(jql) {
     parameters: {
       jql: jql,
       startAt: 0,
-      maxResults: 1000
+      maxResults: 100
     }
   };
   
   var callback = function(data) {
+    Logger.log(data);
     values = values.concat(data.issues);
 
     query.parameters.startAt = data.startAt + data.maxResults;

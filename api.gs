@@ -40,6 +40,7 @@ api.sendRequest = function(request, callback) {
   var json = null;
   var url = api.call.url(server, request);
   var options = api.call.options(server, request);
+    Logger.log(url);
 
   try {
     json = JSON.parse(UrlFetchApp.fetch(url, options));
@@ -60,8 +61,12 @@ api.call = {
       
       if (Array.isArray(request.parameters[key])) {
         str += request.parameters[key].join(',');
-      } else 
-        str += encodeURIComponent(request.parameters[key]);
+      } else {
+        var value = request.parameters[key];
+//        value = (typeof value == 'string') ? '"'+value+'"':value;
+        str += value; //encodeURIComponent(value);
+//        Logger.log(str);
+      }
       param.push(str);
     }
     
