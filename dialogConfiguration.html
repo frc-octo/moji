@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <!-- https://developers.google.com/apps-script/add-ons/css -->
+  <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons.css">
+</head>
+<!-- NODEJS -->
+<script src="gas.js"></script>
+
+<style>
+  html {
+    height: 100%;
+  }
+  
+  body {
+    display: flex;
+    flex-direction: column;
+    
+    margin: 0;
+    padding: 0;
+
+    height: 100%;
+  }
+  
+  header {
+    order: 1;
+
+    display: flex;
+    flex-shrink: 0;
+    flex-direction: column;
+    
+    align-items: center;
+    justify-content: center;
+    
+    height: 40pt;
+    padding: 0 20pt;
+    box-sizing: border-box;
+    
+    color: #aaa;
+  }
+  
+  header #steps {
+    display: flex;
+    
+    width: 200px;
+    justify-content: space-between;
+  }
+  
+  header #steps>span {
+    display: inline-block;
+    
+    border: 2pt solid #aaa;
+    border-radius: 1em;
+
+    width: 1.5em;
+    height: 1.5em;
+    line-height: 1.5em;
+    
+    text-align: center;
+    font-weight: bold;
+  }
+  
+  header #steps>span.selected {
+    border-color: #3079ed;
+    color: #3079ed;
+  }
+  
+  article {
+    order: 2;
+    overflow: hidden;
+
+    display: flex;
+    flex-grow: 1;
+    flex-direction: row;
+    
+    background-color: #fcfcfc;
+    
+    border: 1pt solid #ccc;
+  }
+  
+  footer {
+    order: 3;
+
+    display: flex;
+    flex-shrink: 0;
+    flex-direction: row;
+    
+    align-items: center;
+    justify-content: space-between;
+    
+    height: 50pt;
+    padding: 0 20pt;
+    box-sizing: border-box;
+  }
+  
+  section {
+    overflow: auto;
+    flex-shrink: 0;
+    
+    width: 100%;
+
+    box-sizing: border-box;
+    
+    padding: 20pt;
+    
+    transition: margin 0.5s linear;
+  }
+  
+  section .description {
+    margin: -20pt -20pt 20pt -20pt;
+    padding: 10pt 20pt;
+    
+    color: #fff;
+    font-size: 1.1em;
+    font-style: italic;
+    background-color: #4d90fe;
+  }
+  section .description em {
+    color: #eee;
+    font-weight: bold;
+  }
+
+  
+.flex {
+  display: flex;
+  width: 100%;
+}
+
+.flex>.inline {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+}
+
+
+.row {
+  display: flex;
+  flex-direction: column;
+}
+.row {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+
+  width: 100%;
+  border-bottom: 1pt solid #eee;
+}
+.row>div,
+.row>select {
+  flex-grow: 1;
+  width: 100%;
+  height: 20pt !important;
+  box-sizing: border-box;
+  line-height: 20pt;
+  padding: 0 10pt;
+  font-size: 1em;  
+}
+  .row.header {
+    border-bottom: 1pt solid #4d90fe;
+  }
+  .row.header>* {
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  .row .tech {
+    font-style: italic;
+  }
+  
+  .row .del {
+    position: absolute;
+    cursor: pointer;
+
+    top: 3px;
+    right: 3px;
+    width: 18px;
+    height: 18px;
+
+    background-color: #eee;
+
+    border-radius: 10px;
+    border: 1px solid #888;
+
+    color: #888;
+    font-weight: bold;
+    line-height: 18px;
+    text-align: center;
+  }
+  
+  .row .del:hover {
+    color: #4d90fe;
+    border-color: #4d90fe;
+    background-color: #fff;
+  }
+  
+  div[contenteditable=true] {
+    background: #fff;
+  }
+  
+  button.disabled {
+    display: none;
+  }
+</style>
+  
+<script>
+  var Steps = {
+    current: 1,
+    total: 0
+  };
+  
+  Steps.init = function() {
+    var sections = document.querySelectorAll('article>section');
+    
+    Steps.total = sections.length;
+    Steps.current = 1;
+    var container = document.querySelector('header #steps');
+    for (var i = 1; i <= Steps.total; i++) {
+      var child = document.createElement('span');
+      child.id = 's'+i;
+      child.innerHTML = i;
+      container.appendChild(child);
+    }
+    
+    document.querySelector('header #s'+Steps.current).classList.add('selected');
+  };
+  
+  Steps.previous = function() {
+    if (Steps.current <= 1) return;
+    
+    if (Steps.current == Steps.total) {
+      document.querySelector('footer #next').classList.remove('disabled');
+      document.querySelector('footer #finish').classList.add('disabled');
+    }
+    
+    document.querySelector('header #s'+Steps.current).classList.remove('selected');
+    
+    Steps.current--;
+    
+    document.querySelector('header #s'+Steps.current).classList.add('selected');
+    document.querySelector('article>section').style.marginLeft = ((Steps.current-1) * -100)+'%';
+    
+    if (Steps.current == 1) {
+      document.querySelector('footer #previous').classList.add('disabled');
+      document.querySelector('footer #cancel').classList.remove('disabled');
+    }
+  };
+
+  Steps.next = function() {
+    if (Steps.current >= Steps.total) return;
+
+    Steps.execute(function() {
+      if (Steps.current == 1) {
+        document.querySelector('footer #previous').classList.remove('disabled');
+        document.querySelector('footer #cancel').classList.add('disabled');
+      }
+
+      document.querySelector('header #s'+Steps.current).classList.remove('selected');                                                      
+      Steps.current++;
+
+      document.querySelector('header #s'+Steps.current).classList.add('selected');
+      document.querySelector('article>section').style.marginLeft = ((Steps.current-1) * -100)+'%';
+
+      if (Steps.current == Steps.total) {
+        document.querySelector('footer #next').classList.add('disabled');
+        document.querySelector('footer #finish').classList.remove('disabled');
+      }      
+    });
+
+  };
+  
+  Steps.cancel = function() {
+  };
+  
+  Steps.finish = function() {
+    Steps.execute(function() {
+      google.script.host.close();
+    });
+  };
+  
+  Steps.execute = function(cbk) {
+    switch (Steps.current) {
+      case 1:
+        Script.saveAccess(function() {
+          Script.readProjects(cbk);
+        });
+        break;
+        
+      case 2:
+        Script.saveProject(function() {
+          Script.readFields(cbk);
+        });
+        break;
+
+      case 3:
+        Script.saveFields(cbk);
+        break;
+    }
+  }
+</script>
+
+<script>
+  var Script = {
+    run: google.script.run
+  };
+
+  Script.readAccess = function(cbk) {
+    var callback = function(access) {
+      document.querySelector('input[name=url]').value = access.protocol + '://' + access.hostname;
+      document.querySelector('input[name=username]').value = access.auth_user;
+      document.querySelector('input[name=password]').value = access.auth_pass;
+      
+      if (cbk) cbk();
+    };
+    
+    Script.run.withSuccessHandler(callback).configGetAccess();
+  };
+  
+  Script.saveAccess = function(cbk) {
+    var url = document.querySelector('input[name=url]').value; 
+    var user = document.querySelector('input[name=username]').value;
+    var pass = document.querySelector('input[name=password]').value;
+
+    var callback = function() { if (cbk) cbk(); }
+    
+    Script.run.withSuccessHandler(callback).configSetAccess(url, user, pass);
+  }
+  
+  /**********************************/
+  
+  Script.readProjects = function(cbk) {
+    var container = document.querySelector('select[name=project]');
+    var current = null;
+    
+    var step0 = function() {
+      container.innerHTML = '';
+      var callback = function(item) {
+        current = (item) ? item['name'] : null;
+        step1();
+      };
+
+      Script.run.withSuccessHandler(callback).configGetCurrentProject();
+    };
+    
+    var step1 = function() {
+      var callback = function(list) {
+        Script.projects = list;
+        
+        var id = 0;
+        list.forEach(function(item) {
+          var child = document.createElement('option');
+          child.setAttribute('value', id++);
+          child.innerHTML = item.name;
+
+          if (item.name == current)
+            child.setAttribute('selected', true);
+
+          container.appendChild(child);
+        });
+        
+        if (cbk) cbk();
+      };
+
+      Script.run.withSuccessHandler(callback).configGetProjects();
+    };
+    
+    step0();
+  }
+
+  Script.saveProject = function(cbk) {
+    var id = document.querySelector('select[name=project]').value; 
+    var project = JSON.stringify(Script.projects[id]);
+    
+    var callback = function() { if (cbk) cbk(); }
+    
+    Script.run.withSuccessHandler(callback).configSetCurrentProject(project);
+  };
+  
+  /**********************************/
+  
+  Script.readFields = function(cbk) {
+    var fields = [];
+    
+    var step0 = function() {
+      var container = document.querySelector('#export_list');
+      container.innerHTML = '';
+      
+      Script.fields = document.createElement('select');
+      Script.fields.innerHTML = '';
+      
+      step1();
+    };
+    
+    var step1 = function() {
+      var callback = function(list) {
+        list = JSON.parse(list);
+      
+        for (var id in list)
+          fields.push([list[id].label, list[id].name]);
+        
+        step2();
+      };
+      
+      Script.run.withSuccessHandler(callback).configGetMinFields();
+    };
+    
+    var step2 = function() {
+      var callback = function(list) {
+        var container = Script.fields;
+
+        list.forEach(function(item) {
+          var child = document.createElement('option');
+          child.setAttribute('value', item.name);
+          child.setAttribute('tech', item.id);
+          child.innerHTML = item.name;
+
+          container.appendChild(child);
+        });
+
+        fields.forEach(function(name) {
+          Script.addFieldLine(name);
+        });
+        
+        if (cbk) cbk();
+      };
+
+      Script.run.withSuccessHandler(callback).configGetAllFields();
+    };
+    
+    step0();
+  };
+  
+  Script.addFieldLine = function(f_name) {
+    var container = document.querySelector('#export_list');
+    var fields = Script.fields.cloneNode(true);
+    
+    var row = document.createElement('div');
+    row.classList.add('row');
+    
+    var local_name = document.createElement('div');
+    local_name.setAttribute('contenteditable', 'true');
+    
+    var jira_name = fields;
+    var tech_name = document.createElement('div');
+    tech_name.classList.add('tech');
+    
+    var del_btn = document.createElement('span');
+    del_btn.innerHTML = '–';
+    del_btn.classList.add('del');
+    
+    del_btn.onclick = function() {
+      container.removeChild(row);
+    };
+
+    if (f_name) {
+      var f = fields.querySelector('option[value="'+f_name[1]+'"]');
+      if (f) {
+        f.setAttribute('selected', 'true');
+        tech_name.innerHTML = f.getAttribute('tech');
+      }
+
+      local_name.innerHTML = f_name[0];
+    }
+    
+    fields.onchange = function() {
+      var f = fields.querySelector('option:checked');
+      if (f) tech_name.innerHTML = f.getAttribute('tech');
+    };
+    
+    row.appendChild(local_name);
+    row.appendChild(jira_name);
+    row.appendChild(tech_name);
+    row.appendChild(del_btn);
+    
+    container.appendChild(row);
+  };
+   
+  Script.saveFields = function(cbk) {
+    var elements = document.querySelectorAll('#export_list div.row');
+    var values = [];
+    
+    for (var i = 0; i < elements.length; i++) {
+      var parts = elements[i].childNodes;
+      
+      values.push({
+        label: parts[0].innerHTML,
+        name: parts[1].value,
+        tech: parts[2].innerHTML
+      });
+    }
+    
+    var callback = function() { if (cbk) cbk(); }
+    
+    Script.run.withSuccessHandler(callback).configSetExportFields(JSON.stringify(values));
+  };
+  
+  window.onload = function() {
+    Steps.init();
+    Script.readAccess();
+  }
+</script>
+
+<body>
+  <header>
+    <div id="steps">
+    </div>
+  </header>
+  
+  <footer>
+    <button id="cancel" class="disabled" onclick="Steps.cancel();">CANCEL</button><!--
+    --><button id="previous" class="action"onclick="Steps.previous();">&lt; PREVIOUS STEP</button><!--
+    --><button id="next" class="action" onclick="Steps.next();">NEXT STEP &gt;</button><!--
+    --><button id="finish" class="share disabled" onclick="Steps.finish();">FINISH</button>
+  </footer>
+
+  <article>
+    <section id="s1">
+      <div class="description">
+        Grant access to JIRA server
+      </div>
+      <hr/>
+      <div class="block form-group flex">
+        <div class="inline">
+          <label for="url"><b>Jira access URL :</b></label>
+          <input name="url" type="text" value="" placeholder="https://project.atlassian.net">
+      </div>
+      </div>
+      <div class="block form-group flex">
+        <div class="inline">
+          <label for="username"><b>Username :</b></label>
+          <input name="username" type="text" value="" placeholder="login">
+        </div>
+        <div class="inline">
+          <label for="password"><b>Password :</b></label>
+          <input name="password" type="password" value="" placeholder="password">
+        </div>
+      </div>
+    </section>
+
+    <section id="s2">
+      <div class="description">
+        Select the project to import
+      </div>
+      <hr/>
+      <div class="block form-group flex">
+        <div class="inline">
+          <label for="project"><b>Select current project :</b></label>
+          <select name="project">
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <section id="s3">
+      <div class="description">
+        Select the fields to import
+      </div>
+      <hr/>
+      <div class="block col">
+        <div class="row header">
+          <div>Import name</div>
+          <div>Jira field</div>
+          <div>Technical name</div>
+        </div>
+        <div id="export_list">
+        </div>
+      </div>
+      <button onclick="Script.addFieldLine();">+ add a line</button>
+    </section>
+<!--
+    <section id="s4">
+      <div class="description">
+        Match the JIRA statuses with generic statuses<br>
+        <i>this operation can be improved afterwards</i>
+      </div>
+      <hr/>
+      <div class="block col">
+        <div class="row header">
+          <div>Jira status</div>
+          <div>Generic status</div>
+          <div>Global phase</div>
+        </div>
+        <div id="export_list">
+        </div>
+      </div>
+    </section>
+-->
+  </article>
+</body>
+</html>
