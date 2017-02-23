@@ -5,19 +5,19 @@ if (global) global.jira = jira;
 
 jira.init = function () {
   jira.fields = {
-    'Key'       : { name: 'Key'               , field: null, fn: fields.getKey },
-    'Summary'   : { name: 'Summary'           , field: null, fn: fields.getObject },
-    'Status'    : { name: 'Status'            , field: null, fn: fields.getStatus },
-    'Estimation': { name: 'Story Points'      , field: null, fn: fields.getObject },
-    'Epic'      : { name: 'Epic Name'         , field: null, fn: fields.getObject },
-    'Version'   : { name: 'Fix Version/s'     , field: null, fn: fields.getAllObjectsName },
-    'Sprint'    : { name: 'Sprint'            , field: null, fn: fields.getSprint },
-    'Components': { name: 'Component/s'       , field: null, fn: fields.getAllObjectsName },
-    'Labels'    : { name: 'Labels'            , field: null, fn: fields.getAllObjects },
-    'Priority'  : { name: 'Priority'          , field: null, fn: fields.getObjectName },
-    'Type'      : { name: 'Issue Type'        , field: null, fn: fields.getObjectName },
-    'Date'      : { name: 'Created'           , field: null, fn: fields.getDateFromObject },
-    'Creator'   : { name: 'Creator'           , field: null, fn: fields.getObjectEmail }
+    'Key'       : { names: ['Key',              , 'Clé'                      ], field: null, fn: fields.getKey },
+    'Summary'   : { names: ['Summary'           , 'Résumé'                   ], field: null, fn: fields.getObject },
+    'Status'    : { names: ['Status'            , 'Status'                   ], field: null, fn: fields.getStatus },
+    'Estimation': { names: ['Story Points'      , 'Story Points'             ], field: null, fn: fields.getObject },
+    'Epic'      : { names: ['Epic Name'         , 'Epic Name'                ], field: null, fn: fields.getObject },
+    'Version'   : { names: ['Affects Version/s' , 'Affecte la/les version(s)'], field: null, fn: fields.getAllObjectsName },
+    'Sprint'    : { names: ['Sprint'            , 'Sprint'                   ], field: null, fn: fields.getSprint },
+    'Components': { names: ['Component/s'       , 'Composants'               ], field: null, fn: fields.getAllObjectsName },
+    'Labels'    : { names: ['Labels'            , 'Étiquettes'               ], field: null, fn: fields.getAllObjects },
+    'Priority'  : { names: ['Priority'          , 'Priorité'                 ], field: null, fn: fields.getObjectName },
+    'Type'      : { names: ['Issue Type'        , 'Type de demande'          ], field: null, fn: fields.getObjectName },
+    'Date'      : { names: ['Created'           , 'Création'                 ], field: null, fn: fields.getDateFromObject },
+    'Creator'   : { names: ['Creator'           , 'Créateur'                 ], field: null, fn: fields.getObjectEmail }
   };
 };
 
@@ -104,7 +104,7 @@ jira.getMinFields = function() {
   for (var label in jira.fields)
     fields.push({
       'label': label,
-      'name': jira.fields[label].name,
+      'names': jira.fields[label].names,
       'tech': null
     });
   
