@@ -54,7 +54,7 @@ fields.getSprint = function(issue, field_name) {
     var re = /name=[^\d]*([\d]+)[^\d].*,/;
     var sprintArray = re.exec(value[value.length-1]);
 
-    sprint = sprintArray.pop();
+    sprint = (sprintArray && sprintArray.length) ? sprintArray.pop() : '';
   }
   
   return sprint;

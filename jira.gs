@@ -184,7 +184,7 @@ jira.getData = function(jql) {
     parameters: {
       jql: jql,
       startAt: 0,
-      maxResults: 100
+      maxResults: 200
     }
   };
   
