@@ -47,17 +47,18 @@ fields.getStatus = function(issue, field_name) {
 };
 
 fields.getSprint = function(issue, field_name) {
-  var sprint = null;
-  var value = issue.fields[field_name];
+  var sprints = [];
+  var values = issue.fields[field_name];
   
-  if (value != null && value.length > 0) {
-    var re = /name=[^\d]*([\d]+)[^\d].*,/;
-    var sprintArray = re.exec(value[value.length-1]);
-
-    sprint = (sprintArray && sprintArray.length) ? sprintArray.pop() : '';
-  }
+  if (values != null && values.length > 0)
+    values.forEach(function(value) {
+      var re = /name=[^\d]*([\d]+)[^\d].*,/;
+      var sprintArray = re.exec(value);
+      
+      sprints.push((sprintArray && sprintArray.length) ? sprintArray.pop() : null);
+    });
   
-  return sprint;
+  return sprints.length ? Math.max.apply(null, sprints) : null;
 };
 
 jira.init();
