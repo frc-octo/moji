@@ -35,14 +35,3 @@ function doPost(e) {
   
   return ContentService.createTextOutput(result).setMimeType(ContentService.MimeType.TEXT);
 }
-
-function myFunction() {
-  Logger.log(new Date("2017.01.31".replaceAll('.','/')));
-  return;
-  var service = ScriptApp.getService();
-  
-  //service.enable();
-  Logger.log(service.isEnabled());
-  Logger.log(service.getUrl());
-  //service.disable();
-}
