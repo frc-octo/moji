@@ -9,7 +9,7 @@ jira.init = function () {
     'Summary'   : { names: ['Summary'           , 'Résumé'                   ], field: null, fn: fields.getObject },
     'Status'    : { names: ['Status'            , 'Status'                   ], field: null, fn: fields.getStatus },
     'Estimation': { names: ['Story Points'      , 'Story Points'             ], field: null, fn: fields.getObject },
-    'Epic'      : { names: ['Epic Name'         , 'Epic Name'                ], field: null, fn: fields.getObject },
+    'Epic'      : { names: ['Epic Link'         , 'Epic Link'                ], field: null, fn: fields.getObject },
     'Version'   : { names: ['Affects Version/s' , 'Affecte la/les version(s)'], field: null, fn: fields.getAllObjectsName },
     'Sprint'    : { names: ['Sprint'            , 'Sprint'                   ], field: null, fn: fields.getSprint },
     'Components': { names: ['Component/s'       , 'Composants'               ], field: null, fn: fields.getAllObjectsName },
